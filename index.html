@@ -63,7 +63,7 @@
       border-right: 1px solid var(--border) !important;
       width: var(--sidebar-w) !important;
       padding-top: 0 !important;
-      box-shadow: var(--shadow-xs);
+      box-shadow: var(--shadow-xs); z-index: 50;
     }
     .sidebar-nav { padding: 4px 0; }
     .sidebar-nav li { margin: 0; list-style: none; }
@@ -330,7 +330,7 @@
   </div>
 
   <!-- ====== 移动端遮罩 ====== -->
-  <div id="mobileMask" class="hidden fixed inset-0 bg-black/40 z-[45]"></div>
+  <div id="mobileMask" class="hidden fixed inset-0 z-[40]" style="background:rgba(0,0,0,0.35)"></div>
 
   <!-- ====== JS 库 ====== -->
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
