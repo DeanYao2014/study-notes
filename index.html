@@ -6,54 +6,40 @@
   <title>初中学习笔记</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0/dist/katex.min.css">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      important: 'body',
-      darkMode: 'class',
-      corePlugins: { preflight: false },
-      theme: {
-        extend: {
-          colors: {
-            side:  { bg:'#f7f7f5', hover:'#e8e8e6', text:'#333', head:'#222', border:'#e8e8e6' },
-            paper: { bg:'#fefefe', card:'#ffffff' },
-            ink:   { DEFAULT:'#333', light:'#777', head:'#222' },
-            green: { DEFAULT:'#388e3c', soft:'#e8f5e9', hover:'#2e7d32', link:'#388e3c' },
-          },
-        },
-      },
-    };
-  </script>
   <style>
     /* =============================================
-       DESIGN TOKENS
+       DESIGN TOKENS — 暖调书卷配色
        ============================================= */
     :root {
-      --green: #388e3c; --green-hover: #2e7d32; --green-soft: #66bb6a; --green-bg: #e8f5e9;
-      --bg: #fefefe; --surface: #fafaf8; --surface-hover: #f0f0ee; --card: #ffffff;
-      --border: #e8e8e6; --border-light: #f0f0ed;
-      --text: #3b3b3b; --text-2: #6b6b6b; --text-3: #909090; --text-hd: #1a1a1a;
+      --green:   #2d7d46;  --green-hover: #236936;  --green-soft: #4dac6a;  --green-bg: #edf5ef;
+      --bg:      #fdfbf7;  --surface: #f5f3ee;  --surface-hover: #ece9e2;  --card: #ffffff;
+      --border:  #e6e3dc;  --border-light: #efede8;
+      --text:    #3d3a35;  --text-2: #787570;  --text-3: #9e9b95;  --text-hd: #2a2722;
       --shadow-xs: 0 1px 2px rgba(0,0,0,0.03);
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.04);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
-      --radius-sm: 6px; --radius: 10px; --radius-lg: 14px;
-      --sidebar-w: 260px; --toc-w: 40px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.03);
+      --shadow-md: 0 4px 14px rgba(0,0,0,0.05), 0 1px 3px rgba(0,0,0,0.03);
+      --radius-sm: 6px;  --radius: 10px;  --radius-lg: 14px;
+      --sidebar-w: 250px;  --toc-w: 40px;
     }
     .dark {
-      --green: #4caf50; --green-hover: #66bb6a; --green-soft: #81c784; --green-bg: #1b3a1b;
-      --bg: #1a1a1a; --surface: #242424; --surface-hover: #2e2e2e; --card: #2a2a2a;
-      --border: #383838; --border-light: #303030;
-      --text: #c8c8c8; --text-2: #9a9a9a; --text-3: #7a7a7a; --text-hd: #e8e8e8;
-      --shadow-xs: 0 1px 2px rgba(0,0,0,0.12);
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.18), 0 1px 2px rgba(0,0,0,0.12);
-      --shadow-md: 0 4px 12px rgba(0,0,0,0.25), 0 1px 3px rgba(0,0,0,0.15);
+      --green: #4dac6a;  --green-hover: #5cbb79;  --green-soft: #4dac6a;  --green-bg: #1a3322;
+      --bg: #1e1f22;  --surface: #27282b;  --surface-hover: #303134;  --card: #2e2f33;
+      --border: #3d3e42;  --border-light: #343538;
+      --text: #d4d3cf;  --text-2: #969590;  --text-3: #7a7975;  --text-hd: #e8e8e6;
+      --shadow-xs: 0 1px 2px rgba(0,0,0,0.10);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.10);
+      --shadow-md: 0 4px 14px rgba(0,0,0,0.22), 0 1px 3px rgba(0,0,0,0.12);
     }
 
     /* =============================================
        BASE
        ============================================= */
-    html { font-size: 15px; -webkit-font-smoothing: antialiased; }
-    body { font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif; }
+    html { font-size: 15px; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    body {
+      font-family: -apple-system, "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg); color: var(--text); margin: 0;
+      line-height: 1.7;
+    }
 
     /* =============================================
        SIDEBAR — 左侧导航
@@ -63,62 +49,77 @@
       border-right: 1px solid var(--border) !important;
       width: var(--sidebar-w) !important;
       padding-top: 0 !important;
-      box-shadow: var(--shadow-xs); z-index: 50;
+      z-index: 50; overflow-y: auto;
     }
-    .sidebar-nav { padding: 4px 0; }
+    .sidebar-nav { padding: 6px 0; }
     .sidebar-nav li { margin: 0; list-style: none; }
 
     /* 科目分类标题 */
     .sidebar-nav>li>a, .sidebar-nav>li>p {
-      font-weight: 650; font-size: 13px; letter-spacing: 0.02em;
+      font-weight: 650; font-size: 13px; letter-spacing: 0.03em;
       color: var(--text-hd) !important;
-      padding: 10px 20px 6px !important;
+      padding: 12px 22px 8px !important;
       border-left: 3px solid transparent;
     }
-    .sidebar-nav>li { border-bottom: 1px solid var(--border-light); padding-bottom: 6px; margin-bottom: 2px; }
+    .sidebar-nav>li {
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 8px; margin-bottom: 4px;
+    }
 
     /* 文件链接 */
     .sidebar-nav a {
-      color: var(--text) !important; padding: 5px 20px 5px 20px !important;
+      color: var(--text) !important;
+      padding: 5px 22px 5px 22px !important;
       font-size: 13px; display: block;
-      border-left: 3px solid transparent; transition: background 0.15s, border-color 0.15s;
-      border-radius: 0 4px 4px 0; margin-right: 6px;
+      border-left: 3px solid transparent;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      border-radius: 0 5px 5px 0; margin-right: 8px;
     }
     .sidebar-nav a:hover {
-      background: var(--surface-hover) !important; color: var(--text-hd) !important;
+      background: var(--surface-hover) !important;
+      color: var(--text-hd) !important;
       border-left-color: var(--border) !important;
     }
     .sidebar-nav .active>a {
-      color: var(--green) !important; font-weight: 600;
+      color: var(--green) !important; font-weight: 620;
       border-left: 3px solid var(--green) !important;
       background: var(--green-bg) !important;
     }
 
     /* 嵌套层级 */
-    .sidebar-nav ul a { padding-left: 38px !important; font-size: 12.5px; color: var(--text) !important; }
-    .sidebar-nav ul ul a { padding-left: 52px !important; font-size: 12px; color: var(--text-2) !important; }
+    .sidebar-nav ul a { padding-left: 40px !important; font-size: 12.5px; color: var(--text) !important; }
+    .sidebar-nav ul ul a { padding-left: 54px !important; font-size: 12px; color: var(--text-2) !important; }
 
     /* =============================================
-       SEARCH — 搜索
+       SEARCH
        ============================================= */
     .search {
-      margin: 0; padding: 14px 16px;
+      margin: 0; padding: 15px 18px;
       border-bottom: 1px solid var(--border);
       background: var(--surface);
     }
     .search input {
-      background: var(--card) !important; border: 1px solid var(--border) !important;
-      border-radius: var(--radius) !important; padding: 8px 12px !important;
-      font-size: 13px !important; width: 100% !important; outline: none;
+      background: var(--card) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--radius) !important;
+      padding: 9px 14px !important;
+      font-size: 13.5px !important; width: 100% !important; outline: none;
       color: var(--text) !important;
-      box-shadow: var(--shadow-xs); transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow-xs);
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .search input:focus { border-color: var(--green) !important; box-shadow: 0 0 0 3px rgba(56,142,60,0.08); }
-    .results-panel { background: var(--card) !important; border-radius: var(--radius-sm); box-shadow: var(--shadow-md); }
-    .dark .results-panel { background: var(--card) !important; }
+    .search input:focus {
+      border-color: var(--green) !important;
+      box-shadow: 0 0 0 3px rgba(45,125,70,0.08);
+    }
+    .results-panel {
+      background: var(--card) !important;
+      border-radius: var(--radius-sm); box-shadow: var(--shadow-md);
+      border: 1px solid var(--border);
+    }
 
     /* =============================================
-       CONTENT — 内容区 (核心修复：贴近侧栏不居中)
+       CONTENT — 内容区
        ============================================= */
     .content {
       left: var(--sidebar-w) !important;
@@ -126,89 +127,108 @@
       transition: left 0.3s ease, right 0.3s ease;
     }
     body.close .content { left: 0 !important; }
+
     .markdown-section {
       background: transparent; color: var(--text);
-      max-width: 800px;
-      padding: 36px 0 100px 44px;  /* left padding 控制与侧栏间距 */
+      max-width: 780px;
+      padding: 40px 0 100px 52px;
     }
-    /* Docsify Vue 主题会用 #34495e 覆盖文字色，此处强制覆盖 */
-    .markdown-section, .markdown-section p, .markdown-section li,
-    .markdown-section td, .markdown-section th, .markdown-section blockquote {
-      color: var(--text);
-    }
-    /* 暗色模式 — 全文文字色强力覆盖（body级别，消除 #34495e） */
-    .dark, .dark body, .dark #app, .dark .content, .dark .markdown-section,
-    .dark p, .dark li, .dark td, .dark th, .dark blockquote, .dark details,
-    .dark summary, .dark span, .dark div, .dark label, .dark .sidebar-nav a,
-    .dark .search input {
-      color: #c8c8c8 !important;
-    }
-    .dark .markdown-section h1, .dark .markdown-section h2, .dark .markdown-section h3,
-    .dark .markdown-section h4, .dark .markdown-section h5, .dark .markdown-section h6,
-    .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
-      color: #e8e8e8 !important;
-    }
-    /* 确保暗色模式下 sidebar 文字也清晰 */
-    .dark .sidebar-nav a { color: #c0c0c0 !important; }
-    .dark .sidebar-nav>li>a, .dark .sidebar-nav>li>p { color: #e0e0e0 !important; }
-    .dark .sidebar-nav ul ul a { color: #9a9a9a !important; }
-    .dark .sidebar-nav .active>a { color: var(--green-soft) !important; }
     @media (min-width: 1600px) {
       .markdown-section { max-width: 840px; }
     }
 
+    /* 补丁：覆盖 Vue 主题 #34495e */
+    .markdown-section, .markdown-section p, .markdown-section li,
+    .markdown-section td, .markdown-section th, .markdown-section blockquote,
+    .markdown-section details, .markdown-section summary {
+      color: var(--text);
+    }
+    .dark .markdown-section, .dark .markdown-section p, .dark .markdown-section li,
+    .dark .markdown-section td, .dark .markdown-section blockquote,
+    .dark .markdown-section details, .dark .markdown-section summary,
+    .dark, .dark body, .dark #app, .dark .content, .dark span, .dark div, .dark label {
+      color: var(--text) !important;
+    }
+    .dark .markdown-section h1, .dark .markdown-section h2, .dark .markdown-section h3,
+    .dark .markdown-section h4, .dark .markdown-section h5, .dark .markdown-section h6,
+    .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+      color: var(--text-hd) !important;
+    }
+    .dark .sidebar-nav a { color: #c8c6c1 !important; }
+    .dark .sidebar-nav>li>a, .dark .sidebar-nav>li>p { color: #e0ded9 !important; }
+    .dark .sidebar-nav ul ul a { color: #9e9b95 !important; }
+    .dark .sidebar-nav .active>a { color: var(--green-soft) !important; }
+
     /* 标题 */
     .markdown-section h1 {
-      font-size: 1.65em; font-weight: 700; color: var(--text-hd);
-      border-bottom: 2px solid var(--green); padding-bottom: 10px;
-      margin: 0 0 24px; letter-spacing: 0.01em;
+      font-size: 1.6em; font-weight: 700; color: var(--text-hd);
+      border-bottom: 2px solid var(--green); padding-bottom: 11px;
+      margin: 0 0 26px; letter-spacing: 0.01em;
     }
     .markdown-section h2 {
-      font-size: 1.25em; font-weight: 650; color: var(--text-hd);
-      margin: 36px 0 12px; padding-top: 6px;
+      font-size: 1.22em; font-weight: 650; color: var(--text-hd);
+      margin: 38px 0 14px; padding-top: 6px;
     }
     .markdown-section h3 {
-      font-size: 1.08em; font-weight: 600; color: var(--text-hd); margin: 22px 0 8px;
+      font-size: 1.06em; font-weight: 620; color: var(--text-hd);
+      margin: 24px 0 10px;
     }
 
     /* 链接 */
-    .markdown-section a { color: var(--green); text-decoration: none; border-bottom: 1px solid transparent; transition: border-color 0.15s; }
+    .markdown-section a {
+      color: var(--green); text-decoration: none;
+      border-bottom: 1px solid transparent; transition: border-color 0.2s;
+    }
     .markdown-section a:hover { border-bottom-color: var(--green); }
-    .dark .markdown-section a:hover { border-bottom-color: var(--green-soft); }
 
     /* 表格 */
-    .markdown-section table { border-collapse: collapse; width: 100%; font-size: 13.5px; margin: 14px 0; border-radius: var(--radius-sm); overflow: hidden; box-shadow: var(--shadow-xs); }
-    .markdown-section th { background: var(--green); color: #fff; padding: 9px 14px; text-align: left; font-weight: 600; font-size: 12.5px; letter-spacing: 0.03em; }
-    .markdown-section td { padding: 8px 14px; border-bottom: 1px solid var(--border); background: var(--card); }
-    .dark .markdown-section td { background: var(--card); border-color: var(--border); }
+    .markdown-section table {
+      border-collapse: collapse; width: 100%; font-size: 13.5px;
+      margin: 16px 0; border-radius: var(--radius-sm);
+      overflow: hidden; box-shadow: var(--shadow-xs);
+      border: 1px solid var(--border-light);
+    }
+    .markdown-section th {
+      background: var(--green); color: #fff; padding: 9px 15px;
+      text-align: left; font-weight: 600; font-size: 12.5px; letter-spacing: 0.03em;
+    }
+    .markdown-section td {
+      padding: 8px 15px; border-bottom: 1px solid var(--border-light);
+      background: var(--card);
+    }
     .markdown-section tr:last-child td { border-bottom: none; }
     .markdown-section tr:nth-child(even) td { background: var(--surface); }
 
     /* 代码 */
     .markdown-section code {
       background: var(--surface); padding: 2px 7px; border-radius: var(--radius-sm);
-      font-size: 0.88em; color: var(--text-hd); border: 1px solid var(--border-light);
+      font-size: 0.88em; color: var(--text-hd);
+      border: 1px solid var(--border-light); font-family: Consolas, Menlo, monospace;
     }
     .markdown-section pre {
-      background: var(--surface) !important; padding: 16px 20px;
+      background: var(--surface) !important; padding: 17px 22px;
       border-radius: var(--radius); overflow-x: auto;
       border: 1px solid var(--border-light); box-shadow: var(--shadow-xs);
+      font-family: Consolas, Menlo, monospace; font-size: 13px;
     }
 
     /* 引用块 */
     .markdown-section blockquote {
       border-left: 3px solid var(--green); background: var(--surface);
-      margin: 14px 0; padding: 12px 18px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      color: var(--text-2); font-size: 0.95em;
+      margin: 16px 0; padding: 13px 20px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      color: var(--text-2); font-size: 0.94em;
     }
 
     /* 折叠面板 */
     .markdown-section details {
       background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 14px 18px; margin: 12px 0;
+      border-radius: var(--radius); padding: 14px 18px; margin: 14px 0;
       box-shadow: var(--shadow-xs);
     }
-    .markdown-section summary { font-weight: 600; cursor: pointer; color: var(--green); padding: 4px 0; }
+    .markdown-section summary {
+      font-weight: 600; cursor: pointer; color: var(--green); padding: 4px 0;
+    }
 
     /* KaTeX */
     .katex, .katex * { box-sizing: content-box !important; }
@@ -217,38 +237,110 @@
 
     /* Mermaid */
     .mermaid {
-      background: var(--surface); padding: 20px; border-radius: var(--radius);
-      border: 1px solid var(--border); margin: 14px 0; overflow-x: auto;
+      background: var(--surface); padding: 22px; border-radius: var(--radius);
+      border: 1px solid var(--border); margin: 16px 0; overflow-x: auto;
       box-shadow: var(--shadow-xs);
     }
     .mermaid svg { max-width: 100%; }
 
     /* =============================================
-       SIDEBAR TOGGLE — 侧栏切换按钮
+       SIDEBAR TOGGLE — 导航切换按钮
        ============================================= */
     .sidebar-toggle {
       position: fixed !important;
-      left: calc(var(--sidebar-w) + 8px) !important; top: 14px;
-      width: 32px !important; height: 32px !important; padding: 0 !important;
+      left: calc(var(--sidebar-w) + 10px) !important; top: 16px;
+      width: 34px !important; height: 34px !important; padding: 0 !important;
       border-radius: 50% !important;
       background: var(--card) !important;
       border: 1px solid var(--border) !important;
       cursor: pointer; z-index: 60;
       display: flex !important; align-items: center; justify-content: center;
-      box-shadow: var(--shadow-sm); transition: left 0.3s ease, transform 0.2s, box-shadow 0.2s;
-      opacity: 0.85;
+      box-shadow: var(--shadow-sm);
+      transition: left 0.3s ease, transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.2s;
     }
     .sidebar-toggle:hover {
       border-color: var(--green) !important;
       background: var(--green-bg) !important;
-      box-shadow: var(--shadow-md); opacity: 1; transform: scale(1.06);
+      box-shadow: var(--shadow-md); transform: scale(1.08);
     }
-    body.close .sidebar-toggle { left: 14px !important; }
-    .sidebar-toggle-button { display: flex; flex-direction: column; gap: 3.5px; align-items: center; }
-    .sidebar-toggle-button span { display: block; width: 15px; height: 1.5px; background: var(--text); border-radius: 1px; transition: background 0.2s; }
+    body.close .sidebar-toggle { left: 18px !important; }
+    .sidebar-toggle-button {
+      display: flex; flex-direction: column; gap: 3.5px; align-items: center;
+    }
+    .sidebar-toggle-button span {
+      display: block; width: 16px; height: 1.5px;
+      background: var(--text); border-radius: 1px; transition: background 0.2s;
+    }
 
     /* =============================================
-       SCROLLBAR — 滚动条
+       THEME BUTTON — 日夜切换（左下）
+       ============================================= */
+    #themeBtn {
+      position: fixed; z-index: 100;
+      bottom: 26px; left: 26px;
+      width: 42px; height: 42px; padding: 0;
+      border-radius: 50%; font-size: 1.15em;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      background: var(--card); border: 1px solid var(--border);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s, background 0.25s;
+      user-select: none; -webkit-user-select: none;
+    }
+    #themeBtn:hover {
+      transform: scale(1.12);
+      box-shadow: var(--shadow-md);
+      border-color: var(--green);
+    }
+
+    /* =============================================
+       RIGHT TOC — 右侧页面大纲
+       ============================================= */
+    #page-toc {
+      position: fixed; right: 0; top: 0; height: 100vh; z-index: 90;
+      display: flex; flex-direction: row-reverse;
+      width: 40px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      box-shadow: var(--shadow-xs);
+      overflow: hidden;
+      transition: width 0.3s ease;
+    }
+    #tocHandle {
+      width: 40px; flex-shrink: 0;
+      display: flex; align-items: flex-start; justify-content: center;
+      padding-top: 20px;
+      cursor: pointer; user-select: none; -webkit-user-select: none;
+      color: var(--text-2);
+      transition: color 0.2s;
+      font-size: 15px;
+    }
+    #tocHandle:hover { color: var(--green); }
+    #tocBody {
+      display: none; flex: 1; flex-direction: column;
+      overflow: hidden; padding: 18px 14px 18px 4px;
+    }
+    #tocBody.open { display: flex; }
+    #tocBody>.toc-title {
+      font-size: 12px; font-weight: 650; letter-spacing: 0.04em;
+      color: var(--text-hd);
+      margin-bottom: 14px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    #tocNav { overflow-y: auto; flex: 1; }
+
+    /* =============================================
+       MOBILE MASK — 移动端遮罩
+       ============================================= */
+    #mobileMask {
+      display: none;
+      position: fixed; inset: 0; z-index: 40;
+      background: rgba(0,0,0,0.35);
+    }
+
+    /* =============================================
+       SCROLLBAR
        ============================================= */
     ::-webkit-scrollbar { width: 5px; height: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -258,81 +350,63 @@
     .dark ::-webkit-scrollbar-thumb:hover { background: #777; }
 
     /* =============================================
-       RESPONSIVE — 响应式
+       RESPONSIVE — 平板
        ============================================= */
     @media (max-width: 1023px) {
-      .sidebar { width: 230px !important; }
-      .content { left: 230px !important; right: 0 !important; }
-      .sidebar-toggle { left: 238px !important; }
-      body.close .sidebar-toggle { left: 10px !important; }
-      .markdown-section { padding: 24px 24px 60px; max-width: 100%; }
+      .sidebar { width: 220px !important; }
+      .content { left: 220px !important; right: 0 !important; }
+      .sidebar-toggle { left: 230px !important; }
+      body.close .sidebar-toggle { left: 12px !important; }
+      .markdown-section { padding: 28px 28px 70px; max-width: 100%; }
     }
+
+    /* =============================================
+       RESPONSIVE — 手机
+       ============================================= */
     @media (max-width: 767px) {
-      .sidebar { width: 260px; transform: translateX(-100%); transition: transform 0.3s ease; }
+      :root { --sidebar-w: 260px; }
+      .sidebar {
+        width: 260px !important;
+        transform: translateX(-100%); transition: transform 0.3s ease;
+        box-shadow: var(--shadow-md);
+      }
       body.close .sidebar { transform: translateX(-100%); }
       body:not(.close) .sidebar { transform: translateX(0); }
       .content { left: 0 !important; right: 0 !important; }
-      .markdown-section { padding: 18px 16px 60px; max-width: 100%; }
-      .sidebar-toggle { left: auto !important; right: 46px !important; top: 14px !important; }
-      body:not(.close) .sidebar-toggle { right: 46px !important; }
-      .mermaid { padding: 10px; }
+      .markdown-section { padding: 20px 16px 80px; max-width: 100%; }
+
+      .sidebar-toggle {
+        left: auto !important; right: 48px !important; top: 14px !important;
+        width: 36px !important; height: 36px !important;
+      }
+      body:not(.close) .sidebar-toggle { right: 48px !important; }
+
+      #themeBtn { bottom: 20px; left: 20px; width: 38px; height: 38px; }
+      #page-toc { width: 40px; }
+      .mermaid { padding: 12px; }
     }
   </style>
 </head>
-<!-- ====== BODY: Tailwind 作为布局基础 ====== -->
-<body id="doc-body" class="m-0 p-0 font-sans leading-relaxed"
-  style="background:var(--bg); color:var(--text)">
+<body id="doc-body">
 
   <div id="app">加载中...</div>
 
-  <!-- ====== 主题切换按钮（左下角 · 玻璃拟态） ====== -->
-  <button id="themeBtn"
-    class="fixed z-[100] bottom-7 left-7 w-11 h-11 rounded-full
-    flex items-center justify-center text-lg cursor-pointer select-none
-    transition-all duration-300 ease-out"
-    style="
-      background:var(--card); border:1px solid var(--border);
-      box-shadow:var(--shadow-sm);
-      backdrop-filter:blur(8px);
-    "
-    onmouseover="this.style.transform='scale(1.12)'; this.style.boxShadow='var(--shadow-md)';"
-    onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='var(--shadow-sm)';">
-    🌙
-  </button>
+  <!-- 主题切换按钮 -->
+  <button id="themeBtn">🌙</button>
 
-  <!-- ====== 右侧页面大纲（全屏高度，默认折叠） ====== -->
-  <div id="page-toc"
-    class="fixed right-0 top-0 h-screen z-[90] flex flex-row-reverse
-    overflow-hidden transition-all duration-300"
-    style="
-      width:40px;
-      background:var(--surface);
-      border-left:1px solid var(--border);
-      box-shadow:var(--shadow-xs);
-    ">
-    <!-- 折叠手柄 -->
-    <div id="tocHandle"
-      class="w-10 flex items-start justify-center pt-5 shrink-0
-      cursor-pointer select-none transition-colors duration-200"
-      style="color:var(--text-2)"
-      onmouseover="this.style.color='var(--green)'"
-      onmouseout="this.style.color='var(--text-2)'">
-      ◀
-    </div>
-    <!-- 展开内容 -->
-    <div id="tocBody" class="hidden flex-1 flex-col overflow-hidden pr-3 pl-1 py-4">
-      <div class="text-[12.5px] font-semibold mb-3 pb-2 tracking-wide"
-        style="color:var(--text-hd); border-bottom:1px solid var(--border)">
-        📑 本页目录
-      </div>
-      <div id="tocNav" class="overflow-y-auto flex-1"></div>
+  <!-- 右侧页面大纲 -->
+  <div id="page-toc">
+    <div id="tocHandle">◀</div>
+    <div id="tocBody">
+      <div class="toc-title">📑 本页目录</div>
+      <div id="tocNav"></div>
     </div>
   </div>
 
-  <!-- ====== 移动端遮罩 ====== -->
-  <div id="mobileMask" class="hidden fixed inset-0 z-[40]" style="background:rgba(0,0,0,0.35)"></div>
+  <!-- 移动端遮罩 -->
+  <div id="mobileMask"></div>
 
-  <!-- ====== JS 库 ====== -->
+  <!-- JS 库 -->
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/plugins/search.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0/dist/katex.min.js"></script>
@@ -342,12 +416,9 @@
 
   <script>
     // =============================================
-    //  Mermaid 配置：neutral 主题，兼容亮色/暗色背景
+    //  Mermaid 配置
     // =============================================
-    mermaid.initialize({
-      startOnLoad: false,
-      theme: 'neutral',
-    });
+    mermaid.initialize({ startOnLoad: false, theme: 'neutral' });
 
     // =============================================
     //  Docsify 配置
@@ -361,20 +432,16 @@
       markdown: { smartypants: true },
       plugins: [function (hook) {
         hook.beforeEach(function (c) {
-          // 1. 保护 Mermaid 代码块 → 转换为占位 div
           c = c.replace(/```mermaid\s*\n([\s\S]*?)```/g, function (_, code) {
             return '<div class="mermaid">' + code.trim() + '</div>';
           });
-          // 2. LaTeX 显示公式 \[...\] → $$
           c = c.replace(/\\\[([\s\S]*?)\\\]/g, function (_, t) {
             return '\n$$\n' + t.trim().replace(/\\\\/g, '\\\\\\\\') + '\n$$\n';
           });
-          // 3. LaTeX 行内公式 \(...\) → $
           c = c.replace(/\\\((.+?)\\\)/g, function (_, t) { return '$' + t.trim() + '$'; });
           return c;
         });
         hook.doneEach(function () {
-          // 先渲染 KaTeX
           var el = document.querySelector('.markdown-section');
           if (el && window.renderMathInElement) {
             renderMathInElement(el, {
@@ -385,7 +452,6 @@
               throwOnError: false,
             });
           }
-          // 再渲染 Mermaid
           if (el && window.mermaid) {
             try { mermaid.run({ querySelector: '.mermaid' }); } catch (e) {}
           }
@@ -395,7 +461,7 @@
     };
 
     // =============================================
-    //  右侧页面大纲
+    //  右侧页面大纲生成
     // =============================================
     function buildPageToc() {
       var nav = document.getElementById('tocNav');
@@ -403,7 +469,9 @@
       var el = document.querySelector('.markdown-section');
       if (!el) { nav.innerHTML = ''; return; }
       var hs = el.querySelectorAll('h2, h3');
-      if (!hs.length) { nav.innerHTML = '<span style="font-size:11px;color:var(--text-3)">无标题</span>'; return; }
+      if (!hs.length) {
+        nav.innerHTML = '<span style="font-size:11px;color:var(--text-3)">无标题</span>'; return;
+      }
       nav.innerHTML = '';
       var activeLink = null;
       hs.forEach(function (h, i) {
@@ -413,9 +481,9 @@
         a.textContent = h.textContent;
         var isH2 = h.tagName === 'H2';
         a.style.cssText =
-          'display:block;padding:4px 0 4px ' + (isH2 ? '10px' : '22px') + ';' +
+          'display:block;padding:4px 0 4px ' + (isH2 ? '10px' : '24px') + ';' +
           'font-size:' + (isH2 ? '12.5px' : '11.5px') + ';' +
-          'font-weight:' + (isH2 ? '600' : '400') + ';' +
+          'font-weight:' + (isH2 ? '620' : '400') + ';' +
           'border-left:2px solid transparent;' +
           'text-decoration:none;color:var(--text-2);' +
           'transition:color 0.15s,border-color 0.15s;';
@@ -436,7 +504,7 @@
     }
 
     // =============================================
-    //  右侧大纲：折叠/展开
+    //  右侧大纲折叠/展开
     // =============================================
     (function () {
       var toc = document.getElementById('page-toc');
@@ -448,7 +516,7 @@
         toc.classList.toggle('expanded');
         toc.style.width = open ? '240px' : '40px';
         handle.textContent = open ? '▶' : '◀';
-        if (body) body.style.display = open ? 'flex' : 'none';
+        if (body) { body.classList.toggle('open'); }
       });
     })();
 
@@ -469,7 +537,7 @@
     })();
 
     // =============================================
-    //  移动端：侧边栏遮罩 + 自动关闭
+    //  移动端：侧栏遮罩 + 自动关闭
     // =============================================
     (function () {
       var mask = document.getElementById('mobileMask');
@@ -479,7 +547,6 @@
       });
       observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
       mask.addEventListener('click', function () { document.body.classList.add('close'); });
-      // 初始
       if (window.innerWidth <= 767) document.body.classList.add('close');
     })();
 
