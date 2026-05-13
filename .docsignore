@@ -1,0 +1,19 @@
+# ---- 黑名单：不发布到站点的文件/目录 ----
+# 规则：每行一条，支持 * 通配符
+# .开头的目录/文件已在代码中自动跳过（如 .git .claude）
+# 下面只列非隐藏的需要屏蔽项
+
+# Claude 配置提示词
+CLAUDE*
+
+# 下划线开头的内部 md（如 _sidebar.md _draft_*.md）
+_*
+
+# 工程文件
+node_modules
+*.bak
+不用参考*
+index.html
+.docsignore
+.gitignore
+generate-sidebar.js
