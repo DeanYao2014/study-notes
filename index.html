@@ -136,14 +136,23 @@
     .markdown-section td, .markdown-section th, .markdown-section blockquote {
       color: var(--text);
     }
-    .dark .markdown-section, .dark .markdown-section p, .dark .markdown-section li,
-    .dark .markdown-section td, .dark .markdown-section blockquote {
+    /* 暗色模式 — 全文文字色强力覆盖（body级别，消除 #34495e） */
+    .dark, .dark body, .dark #app, .dark .content, .dark .markdown-section,
+    .dark p, .dark li, .dark td, .dark th, .dark blockquote, .dark details,
+    .dark summary, .dark span, .dark div, .dark label, .dark .sidebar-nav a,
+    .dark .search input {
       color: #c8c8c8 !important;
     }
     .dark .markdown-section h1, .dark .markdown-section h2, .dark .markdown-section h3,
-    .dark .markdown-section h4, .dark .markdown-section h5, .dark .markdown-section h6 {
+    .dark .markdown-section h4, .dark .markdown-section h5, .dark .markdown-section h6,
+    .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
       color: #e8e8e8 !important;
     }
+    /* 确保暗色模式下 sidebar 文字也清晰 */
+    .dark .sidebar-nav a { color: #c0c0c0 !important; }
+    .dark .sidebar-nav>li>a, .dark .sidebar-nav>li>p { color: #e0e0e0 !important; }
+    .dark .sidebar-nav ul ul a { color: #9a9a9a !important; }
+    .dark .sidebar-nav .active>a { color: var(--green-soft) !important; }
     @media (min-width: 1600px) {
       .markdown-section { max-width: 840px; }
     }
