@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>乘法公式几何动画</title>
+<style>
+  :root {
+    --bg: #fdfbf7;
+    --card: #ffffff;
+    --border: #e6e3dc;
+    --text: #3d3a35;
+    --text2: #787570;
+    --green: #2d7d46;
+    --green-bg: #edf5ef;
+    --radius: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+  }
+  .container {
+    width: 100%;
+    max-width: 620px;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: #fafaf7;
+  }
+  .tab {
+    flex: 1;
+    padding: 12px 8px;
+    text-align: center;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text2);
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .tab:hover { color: var(--text); background: #f5f3ee; }
+  .tab.active { color: var(--green); border-bottom-color: var(--green); background: #fff; }
+
+  /* Canvas area */
+  .canvas-wrap {
+    position: relative;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    background: #fefefc;
+  }
+  canvas {
+    display: block;
+    max-width: 100%;
+    border-radius: 6px;
+  }
+
+  /* Formula display */
+  .formula-bar {
+    text-align: center;
+    padding: 12px 16px;
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    border-top: 1px solid var(--border);
+    background: var(--green-bg);
+    letter-spacing: 0.5px;
+  }
+  .formula-bar .val { color: var(--green); }
+
+  /* Controls */
+  .controls {
+    padding: 14px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid var(--border);
+  }
+  .slider-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .slider-group label {
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .slider-group input[type=range] {
+    width: 100px;
+    accent-color: var(--green);
+  }
+  .slider-group .val-tag {
+    display: inline-block;
+    min-width: 22px;
+    text-align: center;
+    font-weight: 700;
+    color: var(--green);
+    font-size: 15px;
+  }
+  .btn {
+    padding: 7px 18px;
+    border: 1px solid var(--green);
+    background: #fff;
+    color: var(--green);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .btn:hover { background: var(--green); color: #fff; }
+  .btn:active { transform: scale(0.97); }
+
+  /* Note */
+  .note {
+    padding: 10px 20px;
+    font-size: 13px;
+    color: var(--text2);
+    text-align: center;
+    border-top: 1px solid var(--border);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 500px) {
+    .tab { font-size: 12px; padding: 10px 4px; }
+    .controls { gap: 8px; padding: 10px 12px; }
+    .slider-group input[type=range] { width: 70px; }
+    .formula-bar { font-size: 14px; padding: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="tabs">
+    <div class="tab active" data-tab="0">(a+b)² 面积模型</div>
+    <div class="tab" data-tab="1">a²−b² 剪切拼图</div>
+    <div class="tab" data-tab="2">(a−b)² 切割模型</div>
+  </div>
+
+  <div class="canvas-wrap"><canvas id="cv"></canvas></div>
+
+  <div class="formula-bar" id="formula"></div>
+
+  <div class="controls">
+    <div class="slider-group">
+      <label>a =</label>
+      <input type="range" id="sliderA" min="1" max="6" value="4" step="0.1">
+      <span class="val-tag" id="valA">4</span>
+    </div>
+    <div class="slider-group">
+      <label>b =</label>
+      <input type="range" id="sliderB" min="0.5" max="5" value="1.5" step="0.1">
+      <span class="val-tag" id="valB">1.5</span>
+    </div>
+    <button class="btn" id="btnAnim" style="display:none">▶ 播放动画</button>
+  </div>
+
+  <div class="note" id="note"></div>
+</div>
+
+<script>
+// ============================================================
+//  State
+// ============================================================
+const cv = document.getElementById('cv');
+const ctx = cv.getContext('2d');
+const DPR = Math.min(window.devicePixelRatio || 1, 2);
+
+let tabIdx = 0;
+let a = 4, b = 1.5;
+let animProgress = 0;       // 0..1, only used for tab 1
+let animRunning = false;
+let animId = null;
+
+// ============================================================
+//  Colors (matching site palette)
+// ============================================================
+const CLR = {
+  a2:    '#5b9ecf',   // a² region — blue
+  b2:    '#e0887f',   // b² region — rose
+  ab1:   '#e8c860',   // ab region (top-right)
+  ab2:   '#c8a840',   // ab region (bottom-left, darker)
+  pieceA:'#e8a840',   // moving piece A (amber)
+  pieceC:'#5b9ecf',   // staying piece C (blue)
+  grid:  '#d8d5ce',
+  text:  '#3d3a35',
+  light: '#f5f3ee',
+  cut:   '#e0887f',   // cut line / cutout
+  final: '#2d7d46',   // final outline
+};
+
+// ============================================================
+//  Canvas setup
+// ============================================================
+function resizeCanvas() {
+  const wrap = cv.parentElement;
+  const w = Math.min(wrap.clientWidth - 32, 560);
+  const h = Math.round(w * 0.68);
+  cv.width  = w * DPR;
+  cv.height = h * DPR;
+  cv.style.width  = w + 'px';
+  cv.style.height = h + 'px';
+}
+
+function px(v) { return v * DPR; }
+
+// ============================================================
+//  Drawing helpers
+// ============================================================
+function fillRect(x, y, w, h, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(px(x), px(y), px(w), px(h));
+}
+function strokeRect(x, y, w, h, color, lw) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = px(lw);
+  ctx.strokeRect(px(x), px(y), px(w), px(h));
+}
+function fillText(text, x, y, size, color, align, bold) {
+  ctx.fillStyle = color;
+  ctx.font = (bold ? 'bold ' : '') + px(size) + 'px "Microsoft YaHei","PingFang SC",sans-serif';
+  ctx.textAlign = align || 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, px(x), px(y));
+}
+function drawLine(x1, y1, x2, y2, color, lw, dash) {
+  ctx.strokeStyle = color;
+  ctx.lineWidth = px(lw);
+  ctx.setLineDash(dash || []);
+  ctx.beginPath();
+  ctx.moveTo(px(x1), px(y1));
+  ctx.lineTo(px(x2), px(y2));
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+function drawArrowLine(x1, y1, x2, y2, color, lw) {
+  drawLine(x1, y1, x2, y2, color, lw);
+  const ang = Math.atan2(y2 - y1, x2 - x1);
+  const s = 10;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(px(x2), px(y2));
+  ctx.lineTo(px(x2 - s*Math.cos(ang-0.45)), px(y2 - s*Math.sin(ang-0.45)));
+  ctx.lineTo(px(x2 - s*Math.cos(ang+0.45)), px(y2 - s*Math.sin(ang+0.45)));
+  ctx.closePath();
+  ctx.fill();
+}
+
+// ============================================================
+//  Tab 0: (a+b)² area model
+// ============================================================
+function drawTab0() {
+  const W = cv.width / DPR, H = cv.height / DPR;
+  const margin = 40;
+  const avail = Math.min(W, H) - margin * 2;
+  const unit = avail / (a + b);
+  const ox = (W - (a+b)*unit) / 2;
+  const oy = (H - (a+b)*unit) / 2;
+
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.save();
+  ctx.scale(DPR, DPR);
+
+  // Background grid
+  const gs = unit;
+  ctx.strokeStyle = CLR.grid;
+  ctx.lineWidth = 0.5;
+  for (let i = 0; i <= Math.ceil((a+b)/gs)*gs; i += gs) {
+    if (i > (a+b)*unit + 0.01) break;
+    ctx.beginPath();
+    ctx.moveTo(ox + i, oy);
+    ctx.lineTo(ox + i, oy + (a+b)*unit);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ox, oy + i);
+    ctx.lineTo(ox + (a+b)*unit, oy + i);
+    ctx.stroke();
+  }
+
+  // Four regions
+  const x1 = ox, y1 = oy;
+  const x2 = ox + a*unit, y2 = oy + a*unit;
+  const x3 = ox + (a+b)*unit, y3 = oy + (a+b)*unit;
+
+  // a² (bottom-left)
+  fillRect(x1, y1 + b*unit, a*unit, a*unit, CLR.a2);
+  // b² (top-right)
+  fillRect(x1 + a*unit, y1, b*unit, b*unit, CLR.b2);
+  // ab (top-left) — above a²
+  fillRect(x1, y1, a*unit, b*unit, CLR.ab1);
+  // ab (bottom-right) — right of a²
+  fillRect(x1 + a*unit, y1 + b*unit, b*unit, a*unit, CLR.ab2);
+
+  // Grid lines on top for clarity
+  ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(ox + a*unit, oy); ctx.lineTo(ox + a*unit, oy + (a+b)*unit);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(ox, oy + b*unit); ctx.lineTo(ox + (a+b)*unit, oy + b*unit);
+  ctx.stroke();
+
+  // Outer border
+  strokeRect(ox, oy, (a+b)*unit, (a+b)*unit, CLR.text, 2.5);
+
+  // Region labels
+  const fs = Math.max(11, Math.min(16, unit * 0.35));
+  fillText('a²', ox + a*unit/2, oy + b*unit + a*unit/2, fs, '#fff', 'center', true);
+  fillText('b²', ox + a*unit + b*unit/2, oy + b*unit/2, fs, '#fff', 'center', true);
+  fillText('ab', ox + a*unit/2, oy + b*unit/2, fs, '#fff', 'center', true);
+  fillText('ab', ox + a*unit + b*unit/2, oy + b*unit + a*unit/2, fs, '#fff', 'center', true);
+
+  // Dimension labels
+  const ds = Math.max(10, Math.min(14, unit * 0.3));
+  // Bottom: a + b
+  fillText('a + b = ' + (a+b).toFixed(1), ox + (a+b)*unit/2, oy + (a+b)*unit + 22, ds, CLR.text, 'center', true);
+  // Left: a + b
+  ctx.save();
+  ctx.translate(ox - 22, oy + (a+b)*unit/2);
+  ctx.rotate(-Math.PI/2);
+  fillText('a + b = ' + (a+b).toFixed(1), 0, 0, ds, CLR.text, 'center', true);
+  ctx.restore();
+
+  // Inner dimension marks
+  drawArrowLine(ox, oy + b*unit + a*unit + 12, ox, oy + b*unit + 6, CLR.text2, 1);
+  drawArrowLine(ox, oy + b*unit + a*unit + 12, ox + a*unit, oy + b*unit + a*unit + 12, CLR.text2, 1);
+  fillText('a='+a.toFixed(1), ox + a*unit/2, oy + b*unit + a*unit + 18, ds-1, CLR.text2, 'center');
+  drawArrowLine(ox + a*unit + 12, oy + b*unit + a*unit, ox + a*unit + 12, oy + b*unit, CLR.text2, 1);
+  fillText('b='+b.toFixed(1), ox + a*unit + b*unit/2, oy + (a+b)*unit + 18, ds-1, CLR.text2, 'center');
+
+  ctx.restore();
+}
+
+// ============================================================
+//  Tab 1: a² − b² cut-and-rearrange
+// ============================================================
+function drawTab1() {
+  const W = cv.width / DPR, H = cv.height / DPR;
+  const margin = 45;
+  const availH = H - margin * 2;
+  const availW = W - margin * 2;
+
+  // Scale to fit: final rectangle is (a+b) wide × (a-b) tall
+  const fw = a + b, fh = a - b;
+  const unit = Math.min(availW / (fw + 1.2), availH / (Math.max(a, fh) + 1));
+
+  // Square origin (start position): center the a×a square
+  const sqSize = a * unit;
+  const rectW = fw * unit;
+  const rectH = fh * unit;
+
+  const ox = (W - Math.max(sqSize, rectW + 2*unit)) / 2;
+  const oy = (H - sqSize) / 2;
+
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.save();
+  ctx.scale(DPR, DPR);
+
+  const t = animProgress;
+
+  // --- b² cutout region (fades as animation progresses) ---
+  const b2Alpha = 1 - t;
+  if (b2Alpha > 0.01) {
+    ctx.globalAlpha = b2Alpha;
+    fillRect(ox + (a-b)*unit, oy, b*unit, b*unit, CLR.b2);
+    ctx.globalAlpha = 1;
+    // Label in b²
+    if (b2Alpha > 0.4) {
+      ctx.globalAlpha = b2Alpha;
+      fillText('b²', ox + (a-b)*unit + b*unit/2, oy + b*unit/2,
+        Math.max(10, Math.min(15, unit*0.35)), '#fff', 'center', true);
+      ctx.globalAlpha = 1;
+    }
+  }
+
+  // --- Piece C: a × (a-b), starts below cutout, slides up ---
+  const cY_start = oy + b * unit;
+  const cY_end   = oy;
+  const cY = cY_start + (cY_end - cY_start) * t;
+  fillRect(ox, cY, a*unit, (a-b)*unit, CLR.pieceC);
+
+  // --- Piece A: (a-b) × b, starts to left of cutout, slides right + flips ---
+  const aX_start = ox;
+  const aY_start = oy;
+  const aW_start = (a-b) * unit;
+  const aH_start = b * unit;
+
+  const aX_end = ox + a * unit;
+  const aY_end = oy;
+  const aW_end = b * unit;
+  const aH_end = (a-b) * unit;
+
+  // Interpolate
+  const ease = t < 0.5 ? 2*t*t : -1 + (4 - 2*t)*t; // ease in-out
+  const aX = aX_start + (aX_end - aX_start) * ease;
+  const aY = aY_start + (aY_end - aY_start) * ease;
+  const aW = aW_start + (aW_end - aW_start) * ease;
+  const aH = aH_start + (aH_end - aH_start) * ease;
+
+  fillRect(aX, aY, aW, aH, CLR.pieceA);
+
+  // --- Outer borders ---
+  if (t < 0.5) {
+    // Show original a×a square outline
+    strokeRect(ox, oy, a*unit, a*unit, CLR.text, 2);
+    // Cut line (horizontal)
+    if (t > 0.05) {
+      drawLine(ox, oy + b*unit, ox + (a-b)*unit, oy + b*unit, CLR.cut, 2, [5, 3]);
+    }
+  }
+  if (t > 0.5) {
+    // Show final rectangle outline
+    const alpha = (t - 0.5) * 2;
+    ctx.globalAlpha = alpha;
+    strokeRect(ox, oy, (a+b)*unit, (a-b)*unit, CLR.final, 2.5);
+    ctx.globalAlpha = 1;
+  }
+
+  // --- Labels ---
+  const ls = Math.max(10, Math.min(14, unit * 0.32));
+
+  if (t < 0.3) {
+    fillText('A', ox + aW_start/2, oy + aH_start/2, ls+2, '#fff', 'center', true);
+    fillText('C', ox + a*unit/2, cY + (a-b)*unit/2, ls+2, '#fff', 'center', true);
+  }
+  if (t > 0.7) {
+    fillText('A', aX + aW/2, aY + aH/2, ls+2, '#fff', 'center', true);
+    fillText('C', ox + a*unit/2, cY + (a-b)*unit/2, ls+2, '#fff', 'center', true);
+  }
+
+  // Dimension labels for final rectangle
+  if (t > 0.5) {
+    const alpha = (t - 0.5) * 2;
+    ctx.globalAlpha = alpha;
+    fillText('a + b = ' + (a+b).toFixed(1), ox + rectW/2, oy + rectH + 18, ls, CLR.final, 'center', true);
+    ctx.save();
+    ctx.translate(ox - 20, oy + rectH/2);
+    ctx.rotate(-Math.PI/2);
+    fillText('a − b = ' + (a-b).toFixed(1), 0, 0, ls, CLR.final, 'center', true);
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  // Before animation: label the original square
+  if (t < 0.5) {
+    const alpha = 1 - t*2;
+    ctx.globalAlpha = alpha;
+    fillText('a', ox + a*unit/2, oy + a*unit + 16, ls, CLR.text2, 'center');
+    ctx.save();
+    ctx.translate(ox - 14, oy + a*unit/2);
+    ctx.rotate(-Math.PI/2);
+    fillText('a', 0, 0, ls, CLR.text2, 'center');
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  ctx.restore();
+}
+
+// ============================================================
+//  Tab 2: (a-b)² cutting model
+// ============================================================
+function drawTab2() {
+  const W = cv.width / DPR, H = cv.height / DPR;
+  const margin = 40;
+  const avail = Math.min(W, H) - margin * 2;
+  const unit = avail / (a + 1);
+  const ox = (W - a*unit) / 2;
+  const oy = (H - a*unit) / 2;
+
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.save();
+  ctx.scale(DPR, DPR);
+
+  // The remaining (a-b)² square (center)
+  const rx = ox + b*unit, ry = oy + b*unit;
+  const rs = (a-b)*unit;
+
+  // Cut strip 1: bottom strip (a × b)
+  fillRect(ox, oy + (a-b)*unit, a*unit, b*unit, CLR.cut);
+  ctx.globalAlpha = 0.5;
+  fillRect(ox, oy + (a-b)*unit, a*unit, b*unit, CLR.cut);
+  ctx.globalAlpha = 1;
+
+  // Cut strip 2: right strip (b × (a-b)) — only the part not overlapping
+  fillRect(ox + (a-b)*unit, oy, b*unit, (a-b)*unit, CLR.cut);
+  ctx.globalAlpha = 0.45;
+  fillRect(ox + (a-b)*unit, oy, b*unit, (a-b)*unit, CLR.cut);
+  ctx.globalAlpha = 1;
+
+  // Overlap b² corner (being cut twice)
+  fillRect(ox + (a-b)*unit, oy + (a-b)*unit, b*unit, b*unit, CLR.b2);
+  fillText('b²', ox + (a-b)*unit + b*unit/2, oy + (a-b)*unit + b*unit/2,
+    Math.max(10, Math.min(14, unit*0.3)), '#fff', 'center', true);
+
+  // Remaining (a-b)² square (highlighted)
+  fillRect(rx, ry, rs, rs, CLR.a2);
+
+  // Outer border (original a×a)
+  strokeRect(ox, oy, a*unit, a*unit, CLR.text, 2);
+
+  // Dashed lines showing cuts
+  drawLine(ox, oy + (a-b)*unit, ox + a*unit, oy + (a-b)*unit, '#c44', 1.5, [4, 3]);
+  drawLine(ox + (a-b)*unit, oy, ox + (a-b)*unit, oy + a*unit, '#c44', 1.5, [4, 3]);
+
+  // Labels
+  const ls = Math.max(10, Math.min(14, unit * 0.32));
+  fillText("(a−b)²", rx + rs/2, ry + rs/2, ls+2, '#fff', 'center', true);
+
+  // Stripe labels
+  fillText('切去', ox + (a-b)*unit + b*unit/2, oy + (a-b)*unit/2, ls-1, '#fff', 'center');
+  fillText('切去', ox + (a-b)*unit/2, oy + (a-b)*unit + b*unit/2, ls-1, '#fff', 'center');
+
+  // Dimension labels
+  fillText('a', ox + a*unit/2, oy + a*unit + 18, ls, CLR.text, 'center', true);
+  ctx.save();
+  ctx.translate(ox - 16, oy + a*unit/2);
+  ctx.rotate(-Math.PI/2);
+  fillText('a', 0, 0, ls, CLR.text, 'center', true);
+  ctx.restore();
+
+  // Small dimension marks
+  fillText('b', ox + a*unit + 14, oy + (a-b)*unit + b*unit/2, ls-1, CLR.cut, 'left');
+  fillText('b', ox + (a-b)*unit/2, oy + a*unit + 14, ls-1, CLR.cut, 'center');
+
+  ctx.restore();
+}
+
+// ============================================================
+//  Main draw dispatcher
+// ============================================================
+function draw() {
+  if (tabIdx === 0) drawTab0();
+  else if (tabIdx === 1) drawTab1();
+  else drawTab2();
+  updateFormula();
+}
+
+// ============================================================
+//  Formula text
+// ============================================================
+function updateFormula() {
+  const fa = a.toFixed(1), fb = b.toFixed(1);
+  const ab2 = (2*a*b).toFixed(1);
+  let html = '';
+  if (tabIdx === 0) {
+    const sum = (a+b).toFixed(1);
+    html = '(<span class="val">'+fa+'</span> + <span class="val">'+fb+'</span>)² = <span class="val">'+fa+'</span>² + 2·<span class="val">'+fa+'</span>·<span class="val">'+fb+'</span> + <span class="val">'+fb+'</span>² = <span class="val">'+(a*a).toFixed(1)+'</span> + <span class="val">'+ab2+'</span> + <span class="val">'+(b*b).toFixed(1)+'</span> = <span class="val">'+((a+b)*(a+b)).toFixed(1)+'</span>';
+  } else if (tabIdx === 1) {
+    const diff = (a-b).toFixed(1);
+    const sum = (a+b).toFixed(1);
+    html = '<span class="val">'+fa+'</span>² − <span class="val">'+fb+'</span>² = (<span class="val">'+sum+'</span>)(<span class="val">'+diff+'</span>) = <span class="val">'+(a*a - b*b).toFixed(1)+'</span>';
+  } else {
+    const diff = (a-b).toFixed(1);
+    html = '(<span class="val">'+fa+'</span> − <span class="val">'+fb+'</span>)² = <span class="val">'+fa+'</span>² − 2·<span class="val">'+fa+'</span>·<span class="val">'+fb+'</span> + <span class="val">'+fb+'</span>² = <span class="val">'+(a*a).toFixed(1)+'</span> − <span class="val">'+ab2+'</span> + <span class="val">'+(b*b).toFixed(1)+'</span> = <span class="val">'+((a-b)*(a-b)).toFixed(1)+'</span>';
+  }
+  document.getElementById('formula').innerHTML = html;
+}
+
+function updateNote() {
+  const notes = [
+    '拖拽滑块改变 a 和 b，观察四个区域面积如何组成 (a+b)²',
+    '拖拽滑块调整 a 和 b，点击「播放动画」看 L 形如何剪拼成矩形',
+    '从 a² 正方形切去两条 a×b 长条，加回重叠的 b²，剩下 (a−b)²',
+  ];
+  document.getElementById('note').textContent = notes[tabIdx];
+}
+
+// ============================================================
+//  Animation loop (for tab 1)
+// ============================================================
+function startAnim() {
+  if (animRunning) return;
+  if (tabIdx !== 1) return;
+  animRunning = true;
+  animProgress = 0;
+  document.getElementById('btnAnim').textContent = '⏸ 重置';
+  animate();
+}
+
+function animate() {
+  if (!animRunning) return;
+  animProgress += 0.008;
+  if (animProgress >= 1) {
+    animProgress = 1;
+    animRunning = false;
+    document.getElementById('btnAnim').textContent = '↺ 重新播放';
+  }
+  draw();
+  if (animRunning) {
+    animId = requestAnimationFrame(animate);
+  }
+}
+
+function stopAnim() {
+  animRunning = false;
+  if (animId) { cancelAnimationFrame(animId); animId = null; }
+  document.getElementById('btnAnim').textContent = '▶ 播放动画';
+}
+
+// ============================================================
+//  Event handlers
+// ============================================================
+function setTab(idx) {
+  stopAnim();
+  tabIdx = idx;
+  animProgress = 0;
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+  document.getElementById('btnAnim').style.display = idx === 1 ? 'inline-block' : 'none';
+  if (idx === 1) document.getElementById('btnAnim').textContent = '▶ 播放动画';
+  updateNote();
+  draw();
+}
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', () => setTab(parseInt(t.dataset.tab)));
+});
+
+document.getElementById('sliderA').addEventListener('input', function() {
+  a = parseFloat(this.value);
+  document.getElementById('valA').textContent = a.toFixed(1);
+  if (tabIdx === 1 && a <= b + 0.05) {
+    b = Math.max(0.5, a - 0.2);
+    document.getElementById('sliderB').value = b;
+    document.getElementById('valB').textContent = b.toFixed(1);
+  }
+  stopAnim();
+  animProgress = 0;
+  if (tabIdx === 1) document.getElementById('btnAnim').textContent = '▶ 播放动画';
+  draw();
+});
+
+document.getElementById('sliderB').addEventListener('input', function() {
+  b = parseFloat(this.value);
+  document.getElementById('valB').textContent = b.toFixed(1);
+  if (tabIdx === 1 && b >= a - 0.05) {
+    a = Math.max(1, b + 0.2);
+    document.getElementById('sliderA').value = a;
+    document.getElementById('valA').textContent = a.toFixed(1);
+  }
+  if (tabIdx === 2 && b >= a - 0.05) {
+    a = Math.max(1, b + 0.2);
+    document.getElementById('sliderA').value = a;
+    document.getElementById('valA').textContent = a.toFixed(1);
+  }
+  stopAnim();
+  animProgress = 0;
+  if (tabIdx === 1) document.getElementById('btnAnim').textContent = '▶ 播放动画';
+  draw();
+});
+
+document.getElementById('btnAnim').addEventListener('click', function() {
+  if (animRunning) { stopAnim(); return; }
+  if (animProgress >= 1) { animProgress = 0; }
+  startAnim();
+});
+
+// ============================================================
+//  Init
+// ============================================================
+function init() {
+  resizeCanvas();
+  document.getElementById('sliderA').value = a;
+  document.getElementById('sliderB').value = b;
+  document.getElementById('valA').textContent = a.toFixed(1);
+  document.getElementById('valB').textContent = b.toFixed(1);
+  updateNote();
+  draw();
+}
+
+window.addEventListener('resize', () => { resizeCanvas(); draw(); });
+init();
+</script>
+</body>
+</html>
